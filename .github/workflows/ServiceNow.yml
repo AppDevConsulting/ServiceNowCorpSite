@@ -43,7 +43,7 @@ jobs:
           # Github Context
           context-github: ${{ toJSON(github) }}
           # JUnit xml report file name with path
-          xml-report-filename: junit-results.xml
+          xml-report-filename: new-test-results.xml
 
   uat:
     needs: test
