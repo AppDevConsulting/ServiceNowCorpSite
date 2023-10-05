@@ -1,0 +1,21 @@
+<?xml version="1.0" ?>
+<testsuites>
+    <testsuite errors="0" failures="0" id="0" name="my test suite" tests="1">
+        <!-- no test explicitly specified, will try to be matched using the default generic test definition -->
+        <testcase classname="some.class.name" name="Test1" requirement="CALC-123" time="123.345000"/>
+  
+        <testcase classname="some.class.name" name="Test2" time="123.345000">
+            <properties>
+                <!-- using a custom "test_id" property -->
+                <property name="test_id" value="10001" />
+            </properties>
+        </testcase>
+  
+        <testcase classname="some.class.name" name="Test3" time="123.345000">
+            <properties>
+                <!-- using a custom "test_key" property -->
+                <property name="test_key" value="CALC-123" />
+            </properties>
+        </testcase>
+    </testsuite>
+</testsuites>
