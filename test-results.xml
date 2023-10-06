@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-          <testsuites name="Test run" tests="8" failures="1" errors="1" skipped="1" 
-              assertions="20" time="16.082687" timestamp="2021-04-02T15:48:23">
-              <!-- Your dummy data goes here -->
-          </testsuites>' > test-results.xml
