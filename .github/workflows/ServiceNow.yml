@@ -1,76 +1,3 @@
-name: ServiceNow DevOps Workflow
-
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-  workflow_dispatch:
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Build
-        run: |
-          # Add your build commands here
-          # Create a sample-test-results.xml file
-          echo '<?xml version="1.0" encoding="UTF-8"?>
-          <testsuites name="Test run" tests="8" failures="1" errors="1" skipped="1" 
-              assertions="20" time="16.082687" timestamp="2021-04-02T15:48:23">
-              <!-- Your dummy data goes here -->
-          </testsuites>' > sample-test-results.xml
- test:
-  name: 'Test'
-  needs: build
-  runs-on: ubuntu-latest
-  steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Display Test XML Content
-      run: cat sample-test-results.xml
-
-   - name: Convert XML to JSON
-  run: |
-    sudo apt-get update
-    sudo apt-get install -y xmlstarlet
-    xmlstarlet fo --json --pretty 1 sample-test-results.xml > sample-test-results.json
-    cat sample-test-results.json || echo "Failed to convert XML to JSON. Exit code: $?; Command output:"
-    cat sample-test-results.xml || echo "Original XML content:"
-
-    - name: Print Converted JSON
-      run: cat sample-test-results.json || echo "Failed to print JSON content."
-
-    - name: Submit Test Results to ServiceNow
-      run: |
-        curl -X POST \
-          -u "${{ secrets.SN_DEVOPS_USER }}:${{ secrets.SN_DEVOPS_PASSWORD }}" \
-          -H "Content-Type: application/json" \
-          -d @sample-test-results.json \
-          "${{ secrets.SN_INSTANCE_URL }}/api/now/table/sn_devops_test_summary" || echo "Failed to submit test results to ServiceNow. Exit code: $?"
-  uat:
-    name: UAT
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: UAT Test
-        run: |
-          # Add your UAT test commands here
-
-  deploy:
-    name: Deploy
-    needs: uat
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
 
       - name: ServiceNow Change
         uses: ServiceNow/servicenow-devops-change@v1.34.2
@@ -79,6 +6,7 @@ jobs:
           devops-integration-user-password: ${{ secrets.SN_DEVOPS_PASSWORD }}
           instance-url: ${{ secrets.SN_INSTANCE_URL }}
           tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
-          context-github: ${{ toJson(github) }}
+          context-github: ${{ toJSON(github) }}
           job-name: 'Deploy'
           change-request: '{"setCloseCode":"true","attributes":{"short_description":"Automated Software Deployment","description":"Automated Software Deployment.","assignment_group":"a715cd759f2002002920bde8132e7018","implementation_plan":"Software update is tested and results can be found in Test Summaries Tab; When the change is approved the implementation happens automated by the CICD pipeline within the change planned start and end time window.","backout_plan":"When software fails in production, the previous software release will be re-deployed.","test_plan":"Testing if the software was successfully deployed"}}'
+        
