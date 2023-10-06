@@ -7,13 +7,20 @@ on:
 
 jobs:
   build:
+    name: 'Build'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
       - name: Build
         run: |
-         
+          # Add your build commands here
+          # For example, if you are using Maven:
+          # mvn clean install
+          # Or if you are using npm:
+          # npm install
+          # Or any other build commands specific to your project
 
   test:
     name: 'Test'
@@ -25,6 +32,28 @@ jobs:
 
       - name: Display Test XML Content
         run: |
+          # Add your test commands here
+
+          # Assuming you generate or have the sample-test-results.xml file
+          # You can replace this with your actual test commands
+          echo '<?xml version="1.0" encoding="UTF-8"?>
+          <testsuites name="Test run" tests="8" failures="1" errors="1" skipped="1" 
+              assertions="20" time="16.082687" timestamp="2021-04-02T15:48:23">
+              <!-- Your dummy data goes here -->
+          </testsuites>' > sample-test-results.xml
+
+          cat sample-test-results.xml  # Display the content for verification
+
+      - name: ServiceNow DevOps Unit Test Results
+        uses: ServiceNow/servicenow-devops-test-report@v2.0.0
+        with:
+          devops-integration-user-name: ${{ secrets.SN_DEVOPS_USER }}
+          devops-integration-user-password: ${{ secrets.SN_DEVOPS_PASSWORD }}
+          instance-url: ${{ secrets.SN_INSTANCE_URL }}
+          tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
+          context-github: ${{ toJSON(github) }}
+          job-name: 'Test'
+          xml-report-filename: 'sample-test-results.xml'
 
   uat:
     needs: test
