@@ -23,7 +23,6 @@ jobs:
               assertions="20" time="16.082687" timestamp="2021-04-02T15:48:23">
               <!-- Your dummy data goes here -->
           </testsuites>' > sample-test-results.xml
-
  test:
   name: 'Test'
   needs: build
