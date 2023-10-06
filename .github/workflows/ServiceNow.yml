@@ -20,7 +20,7 @@ jobs:
       - name: Build
         run: |
           # Add your build commands here
-  test:
+ test:
   name: 'Test'
   runs-on: ubuntu-latest
   steps:
@@ -34,6 +34,7 @@ jobs:
         context-github: ${{ toJSON(github) }}
         job-name: 'Test'
         xml-report-filename: 'sample-test-results.xml'
+
 
   uat:
     needs: test
