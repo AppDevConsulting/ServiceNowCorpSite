@@ -34,11 +34,13 @@ jobs:
     - name: Display Test XML Content
       run: cat sample-test-results.xml
 
-    - name: Convert XML to JSON
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y xmlstarlet
-        xmlstarlet fo --json --pretty 1 sample-test-results.xml > sample-test-results.json || echo "Failed to convert XML to JSON. Exit code: $?"
+   - name: Convert XML to JSON
+  run: |
+    sudo apt-get update
+    sudo apt-get install -y xmlstarlet
+    xmlstarlet fo --json --pretty 1 sample-test-results.xml > sample-test-results.json
+    cat sample-test-results.json || echo "Failed to convert XML to JSON. Exit code: $?; Command output:"
+    cat sample-test-results.xml || echo "Original XML content:"
 
     - name: Print Converted JSON
       run: cat sample-test-results.json || echo "Failed to print JSON content."
