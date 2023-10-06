@@ -10,7 +10,6 @@ on:
   workflow_dispatch:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -23,28 +22,16 @@ jobs:
         run: |
           # Add your build commands here
 
-   create-dummy-xml:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Create Dummy Test XML
-        run: |
-          echo '<?xml version="1.0" encoding="UTF-8"?>
-          <testsuites name="Test run" tests="8" failures="1" errors="1" skipped="1" 
-              assertions="20" time="16.082687" timestamp="2021-04-02T15:48:23">
-              <!-- Your dummy data goes here -->
-          </testsuites>' > dummy-test-results.xml
-
   test:
-    needs: [build, create-dummy-xml]
+    needs: build
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Display Dummy XML Content
-        run: cat dummy-test-results.xml
+      - name: Display Test XML Content
+        run: cat test-results.xml
 
       - name: Test
         uses: ServiceNow/servicenow-devops-test-report@dev
@@ -55,7 +42,8 @@ jobs:
           tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
           context-github: ${{ toJSON(github) }}
           job-name: 'tests'
-          xml-report-filename: 'dummy-test-results.xml'
+          xml-report-filename: 'test-results.xml'
+
   uat:
     needs: test
     runs-on: ubuntu-latest
