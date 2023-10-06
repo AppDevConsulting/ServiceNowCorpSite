@@ -1,24 +1,15 @@
 name: ServiceNow DevOps Workflow
 
-# Controls when the workflow will run
-
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -32,7 +23,8 @@ jobs:
               assertions="20" time="16.082687" timestamp="2021-04-02T15:48:23">
               <!-- Your dummy data goes here -->
           </testsuites>' > sample-test-results.xml
-test:
+
+  test:
     name: 'Test'
     needs: build
     runs-on: ubuntu-latest
@@ -57,11 +49,10 @@ test:
             -d @sample-test-results.json \
             "${{ secrets.SN_INSTANCE_URL }}/api/now/table/sn_devops_test_summary"
 
-
   uat:
+    name: UAT
     needs: test
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -69,10 +60,11 @@ test:
       - name: UAT Test
         run: |
           # Add your UAT test commands here
+
   deploy:
+    name: Deploy
     needs: uat
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
