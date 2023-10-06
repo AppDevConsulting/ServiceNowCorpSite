@@ -1,15 +1,13 @@
-# This is a basic workflow to help you get started with Actions
-
-name: CI
-
 # This workflow uses ServiceNow custom actions that are certified by ServiceNow.
 
-on: workflow_dispatch
-  # push:
-  #   branches: [ "main" ]
-  # pull_request:
-  #   branches: [ "main" ]
-  #   types: [opened, synchronize, reopened]
+name: CI GitHub workflow
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch
 
 jobs:
   build:
@@ -17,65 +15,54 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up JDK 11
-      uses: actions/setup-java@v3
-      with:
-        java-version: '11'
-        distribution: 'temurin'
-        cache: maven
-    - name: Build with Maven
-      run: mvn clean compile
+      - uses: actions/checkout@v3
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+          cache: maven
+      - name: Build with Maven
+        run: mvn clean compile
 
   test:
     name: 'Test'
     needs: build
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4.0.0
+      - name: Checkout
+        uses: actions/checkout@v4.0.0
         
-    - name: Run Tests with Maven
-      run: mvn -B test --file pom.xml
+      - name: Run Tests with Maven
+        run: mvn -B test --file pom.xml
 
-    - name: ServiceNow DevOps Unit Test Results
-    # You may pin to the exact commit or the version.
-      uses: ServiceNow/servicenow-devops-test-report@v2.0.0
-      with:
-          # Devops Integration Token
-          devops-integration-token: ${{ secrets.SN_DEVOPS_TOKEN }}
-          # ServiceNow Instance Name
+      - name: ServiceNow DevOps Unit Test Results
+        # You may pin to the exact commit or the version.
+        uses: ServiceNow/servicenow-devops-test-report@v2.0.0
+        with:
+          devops-integration-user-name: ${{ secrets.SN_DEVOPS_USER }}
+          devops-integration-user-password: ${{ secrets.SN_DEVOPS_PASSWORD }}
           instance-url: ${{ secrets.SN_INSTANCE_URL }}
-          # Orchestration Tool Id
           tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
-          # Job Name
-          job-name: 'Test' # Should be same name as declared in 'name' clause of the current Stage
-          # Github Context
           context-github: ${{ toJSON(github) }}
-          # JUnit xml report file name with path
-          xml-report-filename: target/surefire-reports/testng-results.xml # if only JUnit tests, use target/surefire-reports/testng-results.xml
-                                                                          # if both JUnit & TestNG tests, use target/surefire-reports/testng-junit-results/testng-results.xml
+          job-name: 'Test'
+          xml-report-filename: target/pom.xml # Update with your test report file name/path
 
   registerArtifact:
     name: 'Register Artifact'
     needs: test
     runs-on: ubuntu-latest
     steps:
-    - name: ServiceNow DevOps Register Artifact
-    # You may pin to the exact commit or the version.          
-      uses: ServiceNow/servicenow-devops-register-artifact@v2.0.0
-      with:
-          # Devops Integration Token
-          devops-integration-token: ${{ secrets.SN_DEVOPS_TOKEN }}
-          # ServiceNow Instance URL
+      - name: ServiceNow DevOps Register Artifact
+        # You may pin to the exact commit or the version.          
+        uses: ServiceNow/servicenow-devops-register-artifact@v2.0.0
+        with:
+          devops-integration-user-name: ${{ secrets.SN_DEVOPS_USER }}
+          devops-integration-user-password: ${{ secrets.SN_DEVOPS_PASSWORD }}
           instance-url: ${{ secrets.SN_INSTANCE_URL }}
-          # Orchestration Tool Id
           tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
-          # Display Name of the Job
           job-name: 'Register Artifact'
-          # Github Context
           context-github: ${{ toJSON(github) }}
-          # List of Artifacts to be registered
           artifacts: '[
               {
                   "name": "app-devops.jar",
