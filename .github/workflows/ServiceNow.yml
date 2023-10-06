@@ -24,31 +24,33 @@ jobs:
               <!-- Your dummy data goes here -->
           </testsuites>' > sample-test-results.xml
 
-  test:
-    name: 'Test'
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+ test:
+  name: 'Test'
+  needs: build
+  runs-on: ubuntu-latest
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Display Test XML Content
-        run: cat sample-test-results.xml
+    - name: Display Test XML Content
+      run: cat sample-test-results.xml
 
-      - name: Convert XML to JSON
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y xmlstarlet
-          xmlstarlet fo --json --pretty 1 sample-test-results.xml > sample-test-results.json
+    - name: Convert XML to JSON
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y xmlstarlet
+        xmlstarlet fo --json --pretty 1 sample-test-results.xml > sample-test-results.json || echo "Failed to convert XML to JSON. Exit code: $?"
 
-      - name: Submit Test Results to ServiceNow
-        run: |
-          curl -X POST \
-            -u "${{ secrets.SN_DEVOPS_USER }}:${{ secrets.SN_DEVOPS_PASSWORD }}" \
-            -H "Content-Type: application/json" \
-            -d @sample-test-results.json \
-            "${{ secrets.SN_INSTANCE_URL }}/api/now/table/sn_devops_test_summary"
+    - name: Print Converted JSON
+      run: cat sample-test-results.json || echo "Failed to print JSON content."
 
+    - name: Submit Test Results to ServiceNow
+      run: |
+        curl -X POST \
+          -u "${{ secrets.SN_DEVOPS_USER }}:${{ secrets.SN_DEVOPS_PASSWORD }}" \
+          -H "Content-Type: application/json" \
+          -d @sample-test-results.json \
+          "${{ secrets.SN_INSTANCE_URL }}/api/now/table/sn_devops_test_summary" || echo "Failed to submit test results to ServiceNow. Exit code: $?"
   uat:
     name: UAT
     needs: test
