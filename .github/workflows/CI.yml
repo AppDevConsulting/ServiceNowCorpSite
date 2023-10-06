@@ -31,11 +31,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v4.0.0
-        
-    - name: Run Tests with Maven
-      run: mvn -B test --file pom.xml
-
+      uses: actions/checkout@v2.0.0
+     
     - name: ServiceNow DevOps Unit Test Results
     # You may pin to the exact commit or the version.
       uses: ServiceNow/servicenow-devops-test-report@v2.0.0
@@ -45,10 +42,8 @@ jobs:
           instance-url: ${{ secrets.SN_INSTANCE_URL }}
           tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
           context-github: ${{ toJSON(github) }}
-          # JUnit xml report file name with path
-          xml-report-filename: target/pom.xml # if only JUnit tests, use target/surefire-reports/testng-results.xml
-                                                                          # if both JUnit & TestNG tests, use target/surefire-reports/testng-junit-results/testng-results.xml
-
+           job-name: 'tests'
+          xml-report-filename: 'sample-test-results.xml'
   registerArtifact:
     name: 'Register Artifact'
     needs: test
