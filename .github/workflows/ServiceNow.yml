@@ -1,18 +1,18 @@
-name: ServiceNow DevOps Workflow
-
+# Controls when the workflow will run
 on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
     branches:
       - "main"
   pull_request:
     branches:
       - "main"
-  workflow_dispatch:
 
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   build:
-    name: Build
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -20,13 +20,13 @@ jobs:
       - name: Build
         run: |
           # Add your build commands here
+          # Create a sample-test-results.xml file
           echo '<?xml version="1.0" encoding="UTF-8"?>
           <testsuites name="Test run" tests="8" failures="1" errors="1" skipped="1" 
               assertions="20" time="16.082687" timestamp="2021-04-02T15:48:23">
               <!-- Your dummy data goes here -->
           </testsuites>' > sample-test-results.xml
-
-  test:
+test:
     name: 'Test'
     needs: build
     runs-on: ubuntu-latest
@@ -39,8 +39,9 @@ jobs:
 
       - name: Convert XML to JSON
         run: |
-          npm install -g xml-js
-          xml2json < sample-test-results.xml > sample-test-results.json
+          sudo apt-get update
+          sudo apt-get install -y xmlstarlet
+          xmlstarlet fo --json --pretty 1 sample-test-results.xml > sample-test-results.json
 
       - name: Submit Test Results to ServiceNow
         run: |
@@ -49,4 +50,34 @@ jobs:
             -H "Content-Type: application/json" \
             -d @sample-test-results.json \
             "${{ secrets.SN_INSTANCE_URL }}/api/now/table/sn_devops_test_summary"
-          
+
+
+  uat:
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: UAT Test
+        run: |
+          # Add your UAT test commands here
+  deploy:
+    needs: uat
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: ServiceNow Change
+        uses: ServiceNow/servicenow-devops-change@v1.34.2
+        with:
+          devops-integration-user-name: ${{ secrets.SN_DEVOPS_USER }}
+          devops-integration-user-password: ${{ secrets.SN_DEVOPS_PASSWORD }}
+          instance-url: ${{ secrets.SN_INSTANCE_URL }}
+          tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
+          context-github: ${{ toJson(github) }}
+          job-name: 'Deploy'
+          change-request: '{"setCloseCode":"true","attributes":{"short_description":"Automated Software Deployment","description":"Automated Software Deployment.","assignment_group":"a715cd759f2002002920bde8132e7018","implementation_plan":"Software update is tested and results can be found in Test Summaries Tab; When the change is approved the implementation happens automated by the CICD pipeline within the change planned start and end time window.","backout_plan":"When software fails in production, the previous software release will be re-deployed.","test_plan":"Testing if the software was successfully deployed"}}'
