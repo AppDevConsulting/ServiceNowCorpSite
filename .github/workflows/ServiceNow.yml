@@ -1,4 +1,3 @@
-
 on:
   # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
@@ -20,26 +19,25 @@ jobs:
       - name: Build
         run: |
           # Add your build commands here
- test:
-  name: 'Test'
-  runs-on: ubuntu-latest
-  steps:
-    - name: ServiceNow DevOps Unit Test Results
-      uses: ServiceNow/servicenow-devops-test-report@v2.0.0
-      with:
-        devops-integration-user-name: ${{ secrets.SN_DEVOPS_USER }}
-        devops-integration-user-password: ${{ secrets.SN_DEVOPS_PASSWORD }}
-        instance-url: ${{ secrets.SN_INSTANCE_URL }}
-        tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
-        context-github: ${{ toJSON(github) }}
-        job-name: 'Test'
-        xml-report-filename: 'sample-test-results.xml'
 
+  test:
+    name: 'Test'
+    runs-on: ubuntu-latest
+    steps:
+      - name: ServiceNow DevOps Unit Test Results
+        uses: ServiceNow/servicenow-devops-test-report@v2.0.0
+        with:
+          devops-integration-user-name: ${{ secrets.SN_DEVOPS_USER }}
+          devops-integration-user-password: ${{ secrets.SN_DEVOPS_PASSWORD }}
+          instance-url: ${{ secrets.SN_INSTANCE_URL }}
+          tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
+          context-github: ${{ toJSON(github) }}
+          job-name: 'Test'
+          xml-report-filename: 'sample-test-results.xml'
 
   uat:
     needs: test
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -47,10 +45,10 @@ jobs:
       - name: UAT Test
         run: |
           # Add your UAT test commands here
+
   deploy:
     needs: uat
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -65,4 +63,3 @@ jobs:
           context-github: ${{ toJSON(github) }}
           job-name: 'Deploy'
           change-request: '{"setCloseCode":"true","attributes":{"short_description":"Automated Software Deployment","description":"Automated Software Deployment.","assignment_group":"a715cd759f2002002920bde8132e7018","implementation_plan":"Software update is tested and results can be found in Test Summaries Tab; When the change is approved the implementation happens automated by the CICD pipeline within the change planned start and end time window.","backout_plan":"When software fails in production, the previous software release will be re-deployed.","test_plan":"Testing if the software was successfully deployed"}}'
-        
