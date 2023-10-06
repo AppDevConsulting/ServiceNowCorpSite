@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Test Run" tests="1" failures="0" errors="0" skipped="0" time="0">
+    <testsuite name="Sample Test Suite" tests="1" failures="0" errors="0" skipped="0" time="0">
+        <testcase name="Sample Test Case" classname="com.example.SampleTest">
+            <!-- You can add more information about the test case here -->
+            <system-out><![CDATA[
+                Sample test case executed successfully.
+            ]]></system-out>
+            <system-err><![CDATA[
+                No errors encountered during the test case.
+            ]]></system-err>
+        </testcase>
+    </testsuite>
+</testsuites>
