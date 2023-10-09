@@ -21,7 +21,10 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-        - name: Build
+       - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Test
         run: |
 
 
