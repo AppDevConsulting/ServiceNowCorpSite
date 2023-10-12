@@ -44,7 +44,7 @@ jobs:
     needs: uat
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Deploy
         uses: actions/checkout@v2
 
       - name: ServiceNow Change
