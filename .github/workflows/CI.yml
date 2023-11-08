@@ -24,21 +24,11 @@ jobs:
     steps:
       - name: Test
         uses: actions/checkout@v2
-
+ 
       - name: Test
         run: |
           # Add your test commands here
 
-      - name: Test
-        uses: ServiceNow/servicenow-devops-test-report@v2.0.0
-        with:
-          devops-integration-user-name: ${{ secrets.SN_DEVOPS_USER }}
-          devops-integration-user-password: ${{ secrets.SN_DEVOPS_PASSWORD }}
-          instance-url: ${{ secrets.SN_INSTANCE_URL }}
-          tool-id: ${{ secrets.SN_ORCHESTRATION_TOOL_ID }}
-          context-github: ${{ toJSON(github) }}
-          job-name: 'Test'
-          xml-report-filename: 'sample-test-results.xml'
 
   uat:
     needs: test
