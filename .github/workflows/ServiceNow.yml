@@ -38,6 +38,7 @@ jobs:
         run: |
           # Add your UAT test commands here
   deploy:
+    needs: uat
     name: Deploy
     runs-on: ubuntu-latest
     steps:
